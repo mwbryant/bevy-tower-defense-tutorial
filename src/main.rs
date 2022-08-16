@@ -37,6 +37,7 @@ fn main() {
         // Inspector Setup
         .add_plugin(WorldInspectorPlugin::new())
         .register_type::<Tower>()
+        .register_type::<Lifetime>()
         // Our Systems
         .add_startup_system(spawn_basic_scene)
         .add_startup_system(spawn_camera)
@@ -84,7 +85,7 @@ fn tower_shooting(
                     ..Default::default()
                 })
                 .insert(Lifetime {
-                    timer: Timer::from_seconds(1000.5, false),
+                    timer: Timer::from_seconds(0.5, false),
                 })
                 .insert(Name::new("Bullet"));
         }
