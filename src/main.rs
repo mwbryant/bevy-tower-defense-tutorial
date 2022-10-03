@@ -9,10 +9,16 @@ pub struct GameAssets {
 }
 
 mod bullet;
+mod physics;
 mod target;
 mod tower;
 
+use bevy_rapier3d::{
+    prelude::{NoUserData, RapierConfiguration, RapierPhysicsPlugin},
+    render::RapierDebugRenderPlugin,
+};
 pub use bullet::*;
+use physics::{PhysicsBundle, PhysicsPlugin};
 pub use target::*;
 pub use tower::*;
 
@@ -30,10 +36,14 @@ fn main() {
         .add_plugins(DefaultPlugins)
         // Inspector Setup
         .add_plugin(WorldInspectorPlugin::new())
+        // init physics
+        .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
+        .add_plugin(RapierDebugRenderPlugin::default())
         // Our Systems
         .add_plugin(TowerPlugin)
         .add_plugin(TargetPlugin)
         .add_plugin(BulletPlugin)
+        .add_plugin(PhysicsPlugin)
         .add_startup_system(spawn_basic_scene)
         .add_startup_system(spawn_camera)
         .add_startup_system(asset_loading)
@@ -50,7 +60,12 @@ fn spawn_basic_scene(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    mut rapier_config: ResMut<RapierConfiguration>,
 ) {
+    // set gravity
+    rapier_config.gravity = Vec3::ZERO;
+
+    //spawn bundle
     commands
         .spawn_bundle(PbrBundle {
             mesh: meshes.add(Mesh::from(shape::Plane { size: 5.0 })),
@@ -81,7 +96,8 @@ fn spawn_basic_scene(
         })
         .insert(Target { speed: 0.3 })
         .insert(Health { value: 3 })
-        .insert(Name::new("Target"));
+        .insert(Name::new("Target"))
+        .insert_bundle(PhysicsBundle::moving_entity(Vec3::new(0.4, 0.4, 0.4)));
 
     commands
         .spawn_bundle(PbrBundle {
@@ -92,7 +108,8 @@ fn spawn_basic_scene(
         })
         .insert(Target { speed: 0.3 })
         .insert(Health { value: 3 })
-        .insert(Name::new("Target"));
+        .insert(Name::new("Target"))
+        .insert_bundle(PhysicsBundle::moving_entity(Vec3::new(0.2, 0.2, 0.2)));
 
     commands
         .spawn_bundle(PointLightBundle {

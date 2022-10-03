@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::*;
+use crate::{physics::PhysicsBundle, *};
 
 #[derive(Reflect, Component, Default)]
 #[reflect(Component)]
@@ -51,7 +51,8 @@ fn tower_shooting(
                             direction,
                             speed: 2.5,
                         })
-                        .insert(Name::new("Bullet"));
+                        .insert(Name::new("Bullet"))
+                        .insert_bundle(PhysicsBundle::moving_entity(Vec3::new(0.2, 0.2, 0.2)));
                 });
             }
         }
