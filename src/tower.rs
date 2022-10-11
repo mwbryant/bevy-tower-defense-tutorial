@@ -40,7 +40,7 @@ fn tower_shooting(
                 commands.entity(tower_ent).with_children(|commands| {
                     commands
                         .spawn_bundle(SceneBundle {
-                            scene: bullet_assets.bullet_scene.clone(),
+                            scene: bullet_assets.tomato_scene.clone(),
                             transform: Transform::from_translation(tower.bullet_offset),
                             ..Default::default()
                         })
