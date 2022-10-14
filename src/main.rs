@@ -44,7 +44,6 @@ fn main() {
         .add_startup_system(spawn_camera)
         .add_startup_system_to_stage(StartupStage::PreStartup, asset_loading)
         .add_system(camera_controls)
-        .add_system(what_is_selected)
         .run();
 }
 
@@ -95,6 +94,7 @@ fn camera_controls(
     }
 }
 
+/* Selection testing system
 fn what_is_selected(selection: Query<(&Name, &Selection)>) {
     for (name, selection) in &selection {
         if selection.selected() {
@@ -102,6 +102,7 @@ fn what_is_selected(selection: Query<(&Name, &Selection)>) {
         }
     }
 }
+*/
 
 fn spawn_basic_scene(
     mut commands: Commands,
@@ -146,7 +147,7 @@ fn spawn_basic_scene(
     commands
         .spawn_bundle(SceneBundle {
             scene: game_assets.target_scene.clone(),
-            transform: Transform::from_xyz(-2.0, 0.2, 1.5),
+            transform: Transform::from_xyz(-2.0, 0.4, 2.5),
             ..Default::default()
         })
         .insert(Target { speed: 0.3 })
@@ -156,7 +157,7 @@ fn spawn_basic_scene(
     commands
         .spawn_bundle(SceneBundle {
             scene: game_assets.target_scene.clone(),
-            transform: Transform::from_xyz(-4.0, 0.2, 1.5),
+            transform: Transform::from_xyz(-4.0, 0.4, 2.5),
             ..Default::default()
         })
         .insert(Target { speed: 0.3 })

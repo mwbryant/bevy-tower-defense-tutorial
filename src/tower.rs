@@ -13,7 +13,9 @@ pub struct TowerPlugin;
 
 impl Plugin for TowerPlugin {
     fn build(&self, app: &mut App) {
-        app.register_type::<Tower>().add_system(tower_shooting);
+        app.register_type::<Tower>()
+            .add_system(tower_shooting)
+            .add_system(build_tower);
     }
 }
 
@@ -45,14 +47,50 @@ fn tower_shooting(
                             ..Default::default()
                         })
                         .insert(Lifetime {
-                            timer: Timer::from_seconds(1000.5, false),
+                            timer: Timer::from_seconds(10.0, false),
                         })
                         .insert(Bullet {
                             direction,
-                            speed: 2.5,
+                            speed: 3.5,
                         })
                         .insert(Name::new("Bullet"));
                 });
+            }
+        }
+    }
+}
+
+fn spawn_tomato_tower(commands: &mut Commands, assets: &GameAssets, position: Vec3) -> Entity {
+    commands
+        .spawn_bundle(SpatialBundle::from_transform(Transform::from_translation(
+            position,
+        )))
+        .insert(Name::new("Tomato_Tower"))
+        .insert(Tower {
+            shooting_timer: Timer::from_seconds(0.5, true),
+            bullet_offset: Vec3::new(0.0, 0.6, 0.0),
+        })
+        .with_children(|commands| {
+            commands.spawn_bundle(SceneBundle {
+                scene: assets.tomato_tower_scene.clone(),
+                transform: Transform::from_xyz(0.0, -0.8, 0.0),
+                ..Default::default()
+            });
+        })
+        .id()
+}
+
+fn build_tower(
+    mut commands: Commands,
+    selection: Query<(Entity, &Selection, &Transform)>,
+    keyboard: Res<Input<KeyCode>>,
+    assets: Res<GameAssets>,
+) {
+    if keyboard.just_pressed(KeyCode::Space) {
+        for (entity, selection, transform) in &selection {
+            if selection.selected() {
+                commands.entity(entity).despawn_recursive();
+                spawn_tomato_tower(&mut commands, &assets, transform.translation);
             }
         }
     }
