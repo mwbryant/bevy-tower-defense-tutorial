@@ -73,7 +73,7 @@ fn camera_controls(
 
     let speed = 3.0;
     let rotate_speed = 0.3;
-    //Leafwing
+
     if keyboard.pressed(KeyCode::W) {
         camera.translation += forward * time.delta_seconds() * speed;
     }
