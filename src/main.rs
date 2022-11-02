@@ -1,5 +1,5 @@
 use bevy::{pbr::NotShadowCaster, prelude::*, utils::FloatOrd};
-use bevy_inspector_egui::WorldInspectorPlugin;
+use bevy_inspector_egui::{Inspectable, RegisterInspectable, WorldInspectorPlugin};
 use bevy_mod_picking::*;
 
 pub const HEIGHT: f32 = 720.0;
@@ -42,9 +42,64 @@ fn main() {
         .add_plugin(BulletPlugin)
         .add_startup_system(spawn_basic_scene)
         .add_startup_system(spawn_camera)
+        .register_inspectable::<TowerType>()
         .add_startup_system_to_stage(StartupStage::PreStartup, asset_loading)
         .add_system(camera_controls)
+        .add_system(tower_button_clicked)
+        .add_startup_system(create_ui)
         .run();
+}
+
+#[derive(Inspectable, Component, Clone, Copy, Debug)]
+pub enum TowerType {
+    Tomato,
+    Potato,
+    Cabbage,
+}
+
+fn tower_button_clicked(interaction: Query<(&Interaction, &TowerType), Changed<Interaction>>) {
+    for (interaction, tower_type) in &interaction {
+        if matches!(interaction, Interaction::Clicked) {
+            info!("Spawning: {:?}", tower_type);
+        }
+    }
+}
+
+fn create_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let button_icons = [
+        asset_server.load("tomato_tower.png"),
+        asset_server.load("potato_tower.png"),
+        asset_server.load("cabbage_tower.png"),
+    ];
+
+    let towers = [TowerType::Tomato, TowerType::Potato, TowerType::Cabbage];
+
+    commands
+        .spawn_bundle(NodeBundle {
+            style: Style {
+                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                justify_content: JustifyContent::Center,
+                ..default()
+            },
+            color: Color::NONE.into(),
+            ..default()
+        })
+        .with_children(|commands| {
+            for i in 0..3 {
+                commands
+                    .spawn_bundle(ButtonBundle {
+                        style: Style {
+                            size: Size::new(Val::Percent(15.0 * 9.0 / 16.0), Val::Percent(15.0)),
+                            align_self: AlignSelf::FlexStart,
+                            margin: UiRect::all(Val::Percent(2.0)),
+                            ..default()
+                        },
+                        image: button_icons[i].clone().into(),
+                        ..default()
+                    })
+                    .insert(towers[i]);
+            }
+        });
 }
 
 fn asset_loading(mut commands: Commands, assets: Res<AssetServer>) {
