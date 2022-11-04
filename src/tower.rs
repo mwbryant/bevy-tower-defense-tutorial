@@ -70,30 +70,32 @@ fn tower_shooting(
 }
 
 impl TowerType {
-    fn get_scene(&self, assets: &GameAssets) -> Handle<Scene> {
+    fn get_tower(&self, assets: &GameAssets) -> (Handle<Scene>, Tower) {
         match self {
-            TowerType::Tomato => assets.tomato_tower_scene.clone(),
-            TowerType::Potato => assets.tomato_tower_scene.clone(),
-            TowerType::Cabbage => assets.tomato_tower_scene.clone(),
+            TowerType::Tomato => (
+                assets.tomato_tower_scene.clone(),
+                Tower {
+                    shooting_timer: Timer::from_seconds(0.5, true),
+                    bullet_offset: Vec3::new(0.0, 0.6, 0.0),
+                },
+            ),
+            TowerType::Potato => (
+                assets.tomato_tower_scene.clone(),
+                Tower {
+                    shooting_timer: Timer::from_seconds(0.1, true),
+                    bullet_offset: Vec3::new(0.0, 0.6, 0.0),
+                },
+            ),
+            TowerType::Cabbage => (
+                assets.tomato_tower_scene.clone(),
+                Tower {
+                    shooting_timer: Timer::from_seconds(0.8, true),
+                    bullet_offset: Vec3::new(0.0, 0.6, 0.0),
+                },
+            ),
         }
     }
 
-    fn get_tower(&self) -> Tower {
-        match self {
-            TowerType::Tomato => Tower {
-                shooting_timer: Timer::from_seconds(0.5, true),
-                bullet_offset: Vec3::new(0.0, 0.6, 0.0),
-            },
-            TowerType::Potato => Tower {
-                shooting_timer: Timer::from_seconds(0.1, true),
-                bullet_offset: Vec3::new(0.0, 0.6, 0.0),
-            },
-            TowerType::Cabbage => Tower {
-                shooting_timer: Timer::from_seconds(0.8, true),
-                bullet_offset: Vec3::new(0.0, 0.6, 0.0),
-            },
-        }
-    }
     fn get_bullet(&self, direction: Vec3, assets: &GameAssets) -> (Handle<Scene>, Bullet) {
         match self {
             TowerType::Tomato => (
@@ -127,8 +129,7 @@ fn spawn_tower(
     position: Vec3,
     tower_type: TowerType,
 ) -> Entity {
-    let tower_scene = tower_type.get_scene(assets);
-    let tower = tower_type.get_tower();
+    let (tower_scene, tower) = tower_type.get_tower(assets);
     commands
         .spawn_bundle(SpatialBundle::from_transform(Transform::from_translation(
             position,
@@ -150,7 +151,6 @@ fn tower_button_clicked(
     interaction: Query<(&Interaction, &TowerType), Changed<Interaction>>,
     mut commands: Commands,
     selection: Query<(Entity, &Selection, &Transform)>,
-    root: Query<Entity, With<TowerUIRoot>>,
     assets: Res<GameAssets>,
 ) {
     for (interaction, tower_type) in &interaction {
@@ -159,8 +159,6 @@ fn tower_button_clicked(
                 if selection.selected() {
                     //Remove the base model/hitbox
                     commands.entity(entity).despawn_recursive();
-                    //If button clicked there should be 1 and only 1 root, remove it
-                    commands.entity(root.single()).despawn_recursive();
 
                     spawn_tower(&mut commands, &assets, transform.translation, *tower_type);
                 }
@@ -177,7 +175,6 @@ fn create_ui(commands: &mut Commands, asset_server: &AssetServer) {
     ];
 
     let towers = [TowerType::Tomato, TowerType::Potato, TowerType::Cabbage];
-
     commands
         .spawn_bundle(NodeBundle {
             style: Style {
