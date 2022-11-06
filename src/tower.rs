@@ -80,14 +80,14 @@ impl TowerType {
                 },
             ),
             TowerType::Potato => (
-                assets.tomato_tower_scene.clone(),
+                assets.potato_tower_scene.clone(),
                 Tower {
-                    shooting_timer: Timer::from_seconds(0.1, true),
+                    shooting_timer: Timer::from_seconds(0.7, true),
                     bullet_offset: Vec3::new(0.0, 0.6, 0.0),
                 },
             ),
             TowerType::Cabbage => (
-                assets.tomato_tower_scene.clone(),
+                assets.cabbage_tower_scene.clone(),
                 Tower {
                     shooting_timer: Timer::from_seconds(0.8, true),
                     bullet_offset: Vec3::new(0.0, 0.6, 0.0),
@@ -106,17 +106,17 @@ impl TowerType {
                 },
             ),
             TowerType::Potato => (
-                assets.tomato_scene.clone(),
+                assets.potato_scene.clone(),
                 Bullet {
                     direction,
                     speed: 6.5,
                 },
             ),
             TowerType::Cabbage => (
-                assets.tomato_scene.clone(),
+                assets.cabbage_scene.clone(),
                 Bullet {
                     direction,
-                    speed: 1.5,
+                    speed: 2.5,
                 },
             ),
         }

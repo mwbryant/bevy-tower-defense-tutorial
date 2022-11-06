@@ -9,6 +9,10 @@ pub struct GameAssets {
     tower_base_scene: Handle<Scene>,
     tomato_tower_scene: Handle<Scene>,
     tomato_scene: Handle<Scene>,
+    potato_tower_scene: Handle<Scene>,
+    potato_scene: Handle<Scene>,
+    cabbage_tower_scene: Handle<Scene>,
+    cabbage_scene: Handle<Scene>,
     target_scene: Handle<Scene>,
 }
 
@@ -53,6 +57,10 @@ fn asset_loading(mut commands: Commands, assets: Res<AssetServer>) {
         tower_base_scene: assets.load("TowerBase.glb#Scene0"),
         tomato_tower_scene: assets.load("TomatoTower.glb#Scene0"),
         tomato_scene: assets.load("Tomato.glb#Scene0"),
+        potato_tower_scene: assets.load("PotatoTower.glb#Scene0"),
+        potato_scene: assets.load("Potato.glb#Scene0"),
+        cabbage_tower_scene: assets.load("CabbageTower.glb#Scene0"),
+        cabbage_scene: assets.load("Cabbage.glb#Scene0"),
         target_scene: assets.load("Target.glb#Scene0"),
     });
 }
@@ -113,7 +121,7 @@ fn spawn_basic_scene(
 ) {
     commands
         .spawn_bundle(PbrBundle {
-            mesh: meshes.add(Mesh::from(shape::Plane { size: 25.0 })),
+            mesh: meshes.add(Mesh::from(shape::Plane { size: 50.0 })),
             material: materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
             ..default()
         })
@@ -122,48 +130,46 @@ fn spawn_basic_scene(
     let default_collider_color = materials.add(Color::rgba(0.3, 0.5, 0.3, 0.3).into());
     let selected_collider_color = materials.add(Color::rgba(0.3, 0.9, 0.3, 0.9).into());
 
-    commands
-        .spawn_bundle(SpatialBundle::from_transform(Transform::from_xyz(
-            0.0, 0.8, 0.0,
-        )))
-        .insert(Name::new("Tower_Base"))
-        .insert(meshes.add(shape::Capsule::default().into()))
-        .insert(Highlighting {
-            initial: default_collider_color.clone(),
-            hovered: Some(selected_collider_color.clone()),
-            pressed: Some(selected_collider_color.clone()),
-            selected: Some(selected_collider_color),
-        })
-        .insert(default_collider_color)
-        .insert(NotShadowCaster)
-        .insert_bundle(PickableBundle::default())
-        .with_children(|commands| {
-            commands.spawn_bundle(SceneBundle {
-                scene: game_assets.tower_base_scene.clone(),
-                transform: Transform::from_xyz(0.0, -0.8, 0.0),
+    for i in 0..10 {
+        for j in 0..2 {
+            commands
+                .spawn_bundle(SpatialBundle::from_transform(Transform::from_xyz(
+                    2.0 * i as f32 + j as f32,
+                    0.8,
+                    5.0 * j as f32,
+                )))
+                .insert(Name::new("Tower_Base"))
+                .insert(meshes.add(shape::Capsule::default().into()))
+                .insert(Highlighting {
+                    initial: default_collider_color.clone(),
+                    hovered: Some(selected_collider_color.clone()),
+                    pressed: Some(selected_collider_color.clone()),
+                    selected: Some(selected_collider_color.clone()),
+                })
+                .insert(default_collider_color.clone())
+                .insert(NotShadowCaster)
+                .insert_bundle(PickableBundle::default())
+                .with_children(|commands| {
+                    commands.spawn_bundle(SceneBundle {
+                        scene: game_assets.tower_base_scene.clone(),
+                        transform: Transform::from_xyz(0.0, -0.8, 0.0),
+                        ..Default::default()
+                    });
+                });
+        }
+    }
+
+    for i in 1..25 {
+        commands
+            .spawn_bundle(SceneBundle {
+                scene: game_assets.target_scene.clone(),
+                transform: Transform::from_xyz(-2.0 * i as f32, 0.4, 2.5),
                 ..Default::default()
-            });
-        });
-
-    commands
-        .spawn_bundle(SceneBundle {
-            scene: game_assets.target_scene.clone(),
-            transform: Transform::from_xyz(-2.0, 0.4, 2.5),
-            ..Default::default()
-        })
-        .insert(Target { speed: 0.3 })
-        .insert(Health { value: 3 })
-        .insert(Name::new("Target"));
-
-    commands
-        .spawn_bundle(SceneBundle {
-            scene: game_assets.target_scene.clone(),
-            transform: Transform::from_xyz(-4.0, 0.4, 2.5),
-            ..Default::default()
-        })
-        .insert(Target { speed: 0.3 })
-        .insert(Health { value: 3 })
-        .insert(Name::new("Target"));
+            })
+            .insert(Target { speed: 0.45 })
+            .insert(Health { value: 3 })
+            .insert(Name::new("Target"));
+    }
 
     commands
         .spawn_bundle(PointLightBundle {
