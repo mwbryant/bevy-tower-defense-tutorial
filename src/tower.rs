@@ -41,13 +41,13 @@ fn tower_shooting(
             if let Some(direction) = direction {
                 commands.entity(tower_ent).with_children(|commands| {
                     commands
-                        .spawn_bundle(SceneBundle {
+                        .spawn(SceneBundle {
                             scene: bullet_assets.tomato_scene.clone(),
                             transform: Transform::from_translation(tower.bullet_offset),
                             ..Default::default()
                         })
                         .insert(Lifetime {
-                            timer: Timer::from_seconds(10.0, false),
+                            timer: Timer::from_seconds(10.0, TimerMode::Once),
                         })
                         .insert(Bullet {
                             direction,
@@ -62,16 +62,16 @@ fn tower_shooting(
 
 fn spawn_tomato_tower(commands: &mut Commands, assets: &GameAssets, position: Vec3) -> Entity {
     commands
-        .spawn_bundle(SpatialBundle::from_transform(Transform::from_translation(
+        .spawn(SpatialBundle::from_transform(Transform::from_translation(
             position,
         )))
         .insert(Name::new("Tomato_Tower"))
         .insert(Tower {
-            shooting_timer: Timer::from_seconds(0.5, true),
+            shooting_timer: Timer::from_seconds(0.5, TimerMode::Repeating),
             bullet_offset: Vec3::new(0.0, 0.6, 0.0),
         })
         .with_children(|commands| {
-            commands.spawn_bundle(SceneBundle {
+            commands.spawn(SceneBundle {
                 scene: assets.tomato_tower_scene.clone(),
                 transform: Transform::from_xyz(0.0, -0.8, 0.0),
                 ..Default::default()
