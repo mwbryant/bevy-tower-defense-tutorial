@@ -18,17 +18,27 @@ pub struct GameAssets {
 }
 
 mod bullet;
+mod main_menu;
+mod player;
 mod target;
 mod tower;
 
 pub use bullet::*;
+pub use main_menu::*;
+pub use player::*;
 pub use target::*;
 pub use tower::*;
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+pub enum GameState {
+    MainMenu,
+    Gameplay,
+}
 
 fn main() {
     App::new()
         // Window Setup
-        .insert_resource(ClearColor(Color::rgb(0.2, 0.2, 0.2)))
+        .insert_resource(ClearColor(Color::rgb(0.3, 0.3, 0.3)))
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             window: WindowDescriptor {
                 width: WIDTH,
@@ -44,12 +54,15 @@ fn main() {
         // Mod Picking
         .add_plugins(DefaultPickingPlugins)
         // Our Systems
+        .add_state(GameState::MainMenu)
         .add_plugin(TowerPlugin)
         .add_plugin(TargetPlugin)
         .add_plugin(BulletPlugin)
-        .add_startup_system(spawn_basic_scene)
+        .add_plugin(MainMenuPlugin)
+        .add_plugin(PlayerPlugin)
+        //TODO despawn scene on returning to main menu (on_exit)
+        .add_system_set(SystemSet::on_enter(GameState::Gameplay).with_system(spawn_basic_scene))
         .add_startup_system(spawn_camera)
-        .register_inspectable::<TowerType>()
         .add_startup_system_to_stage(StartupStage::PreStartup, asset_loading)
         .add_system(camera_controls)
         .run();

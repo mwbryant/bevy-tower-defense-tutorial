@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use crate::GameState;
+
 #[derive(Reflect, Component, Default)]
 #[reflect(Component)]
 pub struct Target {
@@ -12,20 +14,32 @@ pub struct Health {
     pub value: i32,
 }
 
+//Can have any data attached (i.e what kind of target or it's value)
+pub struct TargetDeathEvent;
+
 pub struct TargetPlugin;
 
 impl Plugin for TargetPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<Target>()
             .register_type::<Health>()
-            .add_system(move_targets)
-            .add_system(target_death);
+            .add_event::<TargetDeathEvent>()
+            .add_system_set(
+                SystemSet::on_update(GameState::Gameplay)
+                    .with_system(move_targets)
+                    .with_system(target_death),
+            );
     }
 }
 
-fn target_death(mut commands: Commands, targets: Query<(Entity, &Health)>) {
+fn target_death(
+    mut commands: Commands,
+    targets: Query<(Entity, &Health)>,
+    mut death_event_writer: EventWriter<TargetDeathEvent>,
+) {
     for (ent, health) in &targets {
         if health.value <= 0 {
+            death_event_writer.send(TargetDeathEvent);
             commands.entity(ent).despawn_recursive();
         }
     }
