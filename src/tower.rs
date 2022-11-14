@@ -39,13 +39,13 @@ fn tower_shooting(
             if let Some(direction) = direction {
                 commands.entity(tower_ent).with_children(|commands| {
                     commands
-                        .spawn_bundle(SceneBundle {
+                        .spawn(SceneBundle {
                             scene: bullet_assets.bullet_scene.clone(),
                             transform: Transform::from_translation(tower.bullet_offset),
                             ..Default::default()
                         })
                         .insert(Lifetime {
-                            timer: Timer::from_seconds(1000.5, false),
+                            timer: Timer::from_seconds(1000.5, TimerMode::Once),
                         })
                         .insert(Bullet {
                             direction,
