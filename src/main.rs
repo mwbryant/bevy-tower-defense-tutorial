@@ -18,6 +18,7 @@ pub struct Lifetime {
     timer: Timer,
 }
 
+#[derive(Resource)]
 pub struct GameAssets {
     bullet_scene: Handle<Scene>,
 }
@@ -26,14 +27,16 @@ fn main() {
     App::new()
         // Window Setup
         .insert_resource(ClearColor(Color::rgb(0.2, 0.2, 0.2)))
-        .insert_resource(WindowDescriptor {
-            width: WIDTH,
-            height: HEIGHT,
-            title: "Bevy Tower Defense".to_string(),
-            resizable: false,
-            ..Default::default()
-        })
-        .add_plugins(DefaultPlugins)
+        .add_plugins(DefaultPlugins.set(WindowPlugin {
+            window: WindowDescriptor {
+                width: WIDTH,
+                height: HEIGHT,
+                title: "Bevy Tower Defense".to_string(),
+                resizable: false,
+                ..Default::default()
+            },
+            ..default()
+        }))
         // Inspector Setup
         .add_plugin(WorldInspectorPlugin::new())
         .register_type::<Tower>()
@@ -79,13 +82,13 @@ fn tower_shooting(
                 Transform::from_xyz(0.0, 0.7, 0.6).with_rotation(Quat::from_rotation_y(-PI / 2.0));
 
             commands
-                .spawn_bundle(SceneBundle {
+                .spawn(SceneBundle {
                     scene: bullet_assets.bullet_scene.clone(),
                     transform: spawn_transform,
                     ..Default::default()
                 })
                 .insert(Lifetime {
-                    timer: Timer::from_seconds(0.5, false),
+                    timer: Timer::from_seconds(0.5, TimerMode::Once),
                 })
                 .insert(Name::new("Bullet"));
         }
@@ -98,7 +101,7 @@ fn spawn_basic_scene(
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     commands
-        .spawn_bundle(PbrBundle {
+        .spawn(PbrBundle {
             mesh: meshes.add(Mesh::from(shape::Plane { size: 5.0 })),
             material: materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
             ..default()
@@ -106,19 +109,19 @@ fn spawn_basic_scene(
         .insert(Name::new("Ground"));
 
     commands
-        .spawn_bundle(PbrBundle {
+        .spawn(PbrBundle {
             mesh: meshes.add(Mesh::from(shape::Cube { size: 1.0 })),
             material: materials.add(Color::rgb(0.67, 0.84, 0.92).into()),
             transform: Transform::from_xyz(0.0, 0.5, 0.0),
             ..default()
         })
         .insert(Tower {
-            shooting_timer: Timer::from_seconds(1.0, true),
+            shooting_timer: Timer::from_seconds(1.0, TimerMode::Repeating),
         })
         .insert(Name::new("Tower"));
 
     commands
-        .spawn_bundle(PointLightBundle {
+        .spawn(PointLightBundle {
             point_light: PointLight {
                 intensity: 1500.0,
                 shadows_enabled: true,
@@ -131,7 +134,7 @@ fn spawn_basic_scene(
 }
 
 fn spawn_camera(mut commands: Commands) {
-    commands.spawn_bundle(Camera3dBundle {
+    commands.spawn(Camera3dBundle {
         transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
         ..default()
     });
