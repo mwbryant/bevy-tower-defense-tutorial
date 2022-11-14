@@ -10,6 +10,6 @@ opt-level = 1
 opt-level = 3
 
 [dependencies]
-bevy = {version = "0.8", features = ["dynamic"] }
+bevy = {version = "0.9", features = ["dynamic"] }
 
 
