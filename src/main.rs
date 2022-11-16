@@ -53,8 +53,9 @@ fn main() {
         .add_plugin(WorldInspectorPlugin::new())
         // Mod Picking
         .add_plugins(DefaultPickingPlugins)
-        // Our Systems
+        // Our State
         .add_state(GameState::MainMenu)
+        // Our Systems
         .add_plugin(TowerPlugin)
         .add_plugin(TargetPlugin)
         .add_plugin(BulletPlugin)

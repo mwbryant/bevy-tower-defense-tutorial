@@ -22,7 +22,7 @@ impl Plugin for PlayerPlugin {
 }
 
 fn spawn_player(mut commands: Commands) {
-    commands.spawn(Player { money: 100 });
+    commands.spawn((Player { money: 100 }, Name::new("Player")));
 }
 
 fn give_money_on_kill(

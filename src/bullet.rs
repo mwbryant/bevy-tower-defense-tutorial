@@ -28,6 +28,7 @@ impl Plugin for BulletPlugin {
             );
     }
 }
+
 fn bullet_despawn(
     mut commands: Commands,
     mut bullets: Query<(Entity, &mut Lifetime)>,

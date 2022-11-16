@@ -2,6 +2,15 @@ use bevy::{app::AppExit, prelude::*};
 
 use crate::GameState;
 
+#[derive(Component)]
+pub struct MenuUIRoot;
+
+#[derive(Component)]
+pub struct StartButton;
+
+#[derive(Component)]
+pub struct QuitButton;
+
 pub struct MainMenuPlugin;
 
 impl Plugin for MainMenuPlugin {
@@ -16,56 +25,20 @@ impl Plugin for MainMenuPlugin {
     }
 }
 
-#[derive(Component)]
-pub struct MenuUIRoot;
+fn start_button_clicked(
+    mut commands: Commands,
+    interactions: Query<&Interaction, (With<StartButton>, Changed<Interaction>)>,
+    menu_root: Query<Entity, With<MenuUIRoot>>,
+    mut game_state: ResMut<State<GameState>>,
+) {
+    for interaction in &interactions {
+        if matches!(interaction, Interaction::Clicked) {
+            let root_entity = menu_root.single();
+            commands.entity(root_entity).despawn_recursive();
 
-#[derive(Component)]
-pub struct MenuEntity;
-
-#[derive(Component)]
-pub struct StartButton;
-
-#[derive(Component)]
-pub struct QuitButton;
-
-fn spawn_button(
-    commands: &mut Commands,
-    asset_server: &AssetServer,
-    text: &str,
-    color: Color,
-) -> Entity {
-    commands
-        .spawn(ButtonBundle {
-            style: Style {
-                size: Size::new(Val::Percent(65.0), Val::Percent(15.0)),
-                align_self: AlignSelf::Center,
-                justify_content: JustifyContent::Center,
-                margin: UiRect::all(Val::Percent(2.0)),
-                ..default()
-            },
-            background_color: color.into(),
-            ..default()
-        })
-        .with_children(|commands| {
-            commands.spawn(TextBundle {
-                style: Style {
-                    align_self: AlignSelf::Center,
-                    margin: UiRect::all(Val::Percent(3.0)),
-                    ..default()
-                },
-                text: Text::from_section(
-                    text,
-                    TextStyle {
-                        font: asset_server.load("FiraSans-Bold.ttf"),
-                        font_size: 64.0,
-                        color: Color::BLACK,
-                    },
-                )
-                .with_alignment(TextAlignment::CENTER),
-                ..default()
-            });
-        })
-        .id()
+            game_state.set(GameState::Gameplay).unwrap();
+        }
+    }
 }
 
 fn quit_button_clicked(
@@ -75,27 +48,6 @@ fn quit_button_clicked(
     for interaction in &interactions {
         if matches!(interaction, Interaction::Clicked) {
             exit.send(AppExit);
-        }
-    }
-}
-
-fn start_button_clicked(
-    interactions: Query<&Interaction, (With<StartButton>, Changed<Interaction>)>,
-    menu_root: Query<Entity, With<MenuUIRoot>>,
-    menu_entities: Query<Entity, With<MenuEntity>>,
-    mut commands: Commands,
-    mut game_state: ResMut<State<GameState>>,
-) {
-    for interaction in &interactions {
-        if matches!(interaction, Interaction::Clicked) {
-            let root_entity = menu_root.single();
-            commands.entity(root_entity).despawn_recursive();
-
-            for entity in &menu_entities {
-                commands.entity(entity).despawn_recursive();
-            }
-
-            game_state.set(GameState::Gameplay).unwrap();
         }
     }
 }
@@ -132,11 +84,49 @@ fn spawn_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
                         font_size: 96.0,
                         color: Color::BLACK,
                     },
-                )
-                .with_alignment(TextAlignment::CENTER),
+                ),
                 ..default()
             });
         })
         .add_child(start_button)
         .add_child(quit_button);
+}
+
+fn spawn_button(
+    commands: &mut Commands,
+    asset_server: &AssetServer,
+    text: &str,
+    color: Color,
+) -> Entity {
+    commands
+        .spawn(ButtonBundle {
+            style: Style {
+                size: Size::new(Val::Percent(65.0), Val::Percent(15.0)),
+                align_self: AlignSelf::Center,
+                justify_content: JustifyContent::Center,
+                margin: UiRect::all(Val::Percent(2.0)),
+                ..default()
+            },
+            background_color: color.into(),
+            ..default()
+        })
+        .with_children(|commands| {
+            commands.spawn(TextBundle {
+                style: Style {
+                    align_self: AlignSelf::Center,
+                    margin: UiRect::all(Val::Percent(3.0)),
+                    ..default()
+                },
+                text: Text::from_section(
+                    text,
+                    TextStyle {
+                        font: asset_server.load("FiraSans-Bold.ttf"),
+                        font_size: 64.0,
+                        color: Color::BLACK,
+                    },
+                ),
+                ..default()
+            });
+        })
+        .id()
 }
