@@ -183,7 +183,10 @@ fn spawn_basic_scene(
                 transform: Transform::from_xyz(-2.0 * i as f32, 0.4, 2.5),
                 ..Default::default()
             })
-            .insert(Target { speed: 0.45 })
+            .insert(Target {
+                speed: 0.45,
+                ..Default::default()
+            })
             .insert(Health { value: 3 })
             .insert(Name::new("Target"));
     }

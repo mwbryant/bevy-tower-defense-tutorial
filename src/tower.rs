@@ -100,6 +100,7 @@ fn tower_shooting(
     }
 }
 
+//TODO all of the tower description could be in a hashmap resource loaded on startup from a config file
 impl TowerType {
     fn get_tower(&self, assets: &GameAssets) -> (Handle<Scene>, Tower) {
         match self {
