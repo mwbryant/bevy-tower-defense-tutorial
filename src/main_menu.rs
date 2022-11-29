@@ -30,6 +30,7 @@ fn start_button_clicked(
     interactions: Query<&Interaction, (With<StartButton>, Changed<Interaction>)>,
     menu_root: Query<Entity, With<MenuUIRoot>>,
     mut game_state: ResMut<State<GameState>>,
+    mut mouse_input: ResMut<Input<MouseButton>>,
 ) {
     for interaction in &interactions {
         if matches!(interaction, Interaction::Clicked) {
@@ -37,6 +38,7 @@ fn start_button_clicked(
             commands.entity(root_entity).despawn_recursive();
 
             game_state.set(GameState::Gameplay).unwrap();
+            mouse_input.clear();
         }
     }
 }

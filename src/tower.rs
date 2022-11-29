@@ -19,18 +19,45 @@ pub enum TowerType {
 #[derive(Component)]
 pub struct TowerUIRoot;
 
+#[derive(Component, Reflect, Default)]
+#[reflect(Component)]
+pub struct TowerButtonState {
+    cost: u32,
+    affordable: bool,
+}
+
 pub struct TowerPlugin;
 
 impl Plugin for TowerPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<Tower>()
             .register_inspectable::<TowerType>()
+            .register_type::<TowerButtonState>()
             .add_system_set(
                 SystemSet::on_update(GameState::Gameplay)
                     .with_system(tower_shooting)
                     .with_system(tower_button_clicked)
-                    .with_system(create_ui_on_selection),
+                    .with_system(create_ui_on_selection)
+                    .with_system(grey_tower_buttons.after(create_ui_on_selection)),
             );
+    }
+}
+
+fn grey_tower_buttons(
+    mut buttons: Query<(&mut BackgroundColor, &mut TowerButtonState)>,
+    player: Query<&Player>,
+) {
+    //Won't panic: player must always exist in this game and there must be only 1
+    let player = player.single();
+
+    for (mut tint, mut state) in &mut buttons {
+        if player.money >= state.cost {
+            state.affordable = true;
+            *tint = Color::WHITE.into();
+        } else {
+            state.affordable = false;
+            *tint = Color::DARK_GRAY.into();
+        }
     }
 }
 
@@ -172,6 +199,7 @@ fn tower_button_clicked(
 }
 
 fn create_ui(commands: &mut Commands, asset_server: &AssetServer) {
+    //TODO move all tower specific data to a resource, probably serialized to a ron file
     let button_icons = [
         asset_server.load("tomato_tower.png"),
         asset_server.load("potato_tower.png"),
@@ -179,6 +207,9 @@ fn create_ui(commands: &mut Commands, asset_server: &AssetServer) {
     ];
 
     let towers = [TowerType::Tomato, TowerType::Potato, TowerType::Cabbage];
+
+    let costs = [50, 120, 150];
+
     commands
         .spawn(NodeBundle {
             style: Style {
@@ -201,6 +232,11 @@ fn create_ui(commands: &mut Commands, asset_server: &AssetServer) {
                         },
                         image: button_icons[i].clone().into(),
                         ..default()
+                    })
+                    .insert(TowerButtonState {
+                        cost: costs[i],
+                        //Set in a system right after this one
+                        affordable: false,
                     })
                     .insert(towers[i]);
             }

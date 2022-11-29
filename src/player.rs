@@ -6,7 +6,7 @@ use crate::{GameState, TargetDeathEvent};
 #[derive(Component, Reflect, Default)]
 #[reflect(Component)]
 pub struct Player {
-    money: u32,
+    pub money: u32,
 }
 
 pub struct PlayerPlugin;
