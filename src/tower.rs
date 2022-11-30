@@ -187,19 +187,25 @@ fn spawn_tower(
 }
 
 fn tower_button_clicked(
-    interaction: Query<(&Interaction, &TowerType), Changed<Interaction>>,
+    interaction: Query<(&Interaction, &TowerType, &TowerButtonState), Changed<Interaction>>,
     mut commands: Commands,
     selection: Query<(Entity, &Selection, &Transform)>,
+    mut player: Query<&mut Player>,
     assets: Res<GameAssets>,
 ) {
-    for (interaction, tower_type) in &interaction {
+    let mut player = player.single_mut();
+    for (interaction, tower_type, button_state) in &interaction {
         if matches!(interaction, Interaction::Clicked) {
             for (entity, selection, transform) in &selection {
                 if selection.selected() {
-                    //Remove the base model/hitbox
-                    commands.entity(entity).despawn_recursive();
+                    //can afford (same as checking if affordable is set)
+                    if player.money >= button_state.cost {
+                        player.money -= button_state.cost;
+                        //Remove the base model/hitbox
+                        commands.entity(entity).despawn_recursive();
 
-                    spawn_tower(&mut commands, &assets, transform.translation, *tower_type);
+                        spawn_tower(&mut commands, &assets, transform.translation, *tower_type);
+                    }
                 }
             }
         }
