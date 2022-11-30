@@ -7,6 +7,7 @@ use crate::*;
 pub struct Tower {
     pub shooting_timer: Timer,
     pub bullet_offset: Vec3,
+    pub range: f32,
 }
 
 #[derive(Inspectable, Component, Clone, Copy, Debug)]
@@ -75,6 +76,9 @@ fn tower_shooting(
 
             let direction = targets
                 .iter()
+                .filter(|target_transform| {
+                    Vec3::distance(target_transform.translation(), bullet_spawn) < tower.range
+                })
                 .min_by_key(|target_transform| {
                     FloatOrd(Vec3::distance(target_transform.translation(), bullet_spawn))
                 })
@@ -109,6 +113,7 @@ impl TowerType {
                 Tower {
                     shooting_timer: Timer::from_seconds(0.5, TimerMode::Repeating),
                     bullet_offset: Vec3::new(0.0, 0.6, 0.0),
+                    range: 4.5,
                 },
             ),
             TowerType::Potato => (
@@ -116,6 +121,7 @@ impl TowerType {
                 Tower {
                     shooting_timer: Timer::from_seconds(0.7, TimerMode::Repeating),
                     bullet_offset: Vec3::new(0.0, 0.6, 0.0),
+                    range: 4.5,
                 },
             ),
             TowerType::Cabbage => (
@@ -123,6 +129,7 @@ impl TowerType {
                 Tower {
                     shooting_timer: Timer::from_seconds(0.8, TimerMode::Repeating),
                     bullet_offset: Vec3::new(0.0, 0.6, 0.0),
+                    range: 4.5,
                 },
             ),
         }
