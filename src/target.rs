@@ -1,6 +1,6 @@
 use bevy::{math::Vec3Swizzles, prelude::*, reflect::GetPath};
 
-use crate::GameState;
+use crate::{GameState, Player};
 
 #[derive(Reflect, Component, Default)]
 #[reflect(Component)]
@@ -60,11 +60,30 @@ fn target_death(
     }
 }
 
-fn hurt_player(mut commands: Commands, targets: Query<(Entity, &Target)>, path: Res<TargetPath>) {
+fn hurt_player(
+    mut commands: Commands,
+    targets: Query<(Entity, &Target)>,
+    path: Res<TargetPath>,
+    mut player: Query<&mut Player>,
+    audio: Res<Audio>,
+    asset_server: Res<AssetServer>,
+) {
     for (entity, target) in &targets {
         if target.path_index >= path.waypoints.len() {
             commands.entity(entity).despawn_recursive();
-            info!("Oof");
+
+            //Enemies reaching the end of their path could write an event to cause the player to take damage or play audio
+            audio.play(asset_server.load("damage.wav"));
+
+            let mut player = player.single_mut();
+            if player.health > 0 {
+                player.health -= 1;
+            }
+
+            if player.health == 0 {
+                //TODO this could write an event or change the game state
+                info!("GAME OVER");
+            }
         }
     }
 }

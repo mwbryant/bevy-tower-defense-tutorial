@@ -87,14 +87,14 @@ fn spawn_gameplay_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
                     commands
                         .spawn(TextBundle {
                             style: Style {
-                                margin: UiRect::all(Val::Percent(1.0)),
+                                margin: UiRect::all(Val::Percent(1.2)),
                                 ..default()
                             },
                             text: Text::from_section(
                                 "Player Money: XX",
                                 TextStyle {
                                     font: asset_server.load("FiraSans-Bold.ttf"),
-                                    font_size: 24.0,
+                                    font_size: 36.0,
                                     color: Color::BLACK,
                                 },
                             ),
@@ -104,14 +104,14 @@ fn spawn_gameplay_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
                     commands
                         .spawn(TextBundle {
                             style: Style {
-                                margin: UiRect::all(Val::Percent(1.0)),
+                                margin: UiRect::all(Val::Percent(1.2)),
                                 ..default()
                             },
                             text: Text::from_section(
                                 "Player Health: XX",
                                 TextStyle {
                                     font: asset_server.load("FiraSans-Bold.ttf"),
-                                    font_size: 24.0,
+                                    font_size: 36.0,
                                     color: Color::BLACK,
                                 },
                             ),

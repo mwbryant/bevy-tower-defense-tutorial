@@ -228,7 +228,7 @@ fn create_ui(
 
     let towers = [TowerType::Tomato, TowerType::Potato, TowerType::Cabbage];
 
-    let costs = [50, 120, 150];
+    let costs = [50, 80, 110];
 
     let child = commands
         .spawn(NodeBundle {
