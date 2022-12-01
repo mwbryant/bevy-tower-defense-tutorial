@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{GameState, Health, TargetDeathEvent};
+use crate::{GameState, TargetDeathEvent};
 
 // Could be a resource
 #[derive(Component, Reflect, Default)]
@@ -63,6 +63,7 @@ fn spawn_gameplay_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
         .spawn(NodeBundle {
             style: Style {
                 size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                position_type: PositionType::Absolute,
                 justify_content: JustifyContent::FlexStart,
                 flex_direction: FlexDirection::Column,
                 ..default()

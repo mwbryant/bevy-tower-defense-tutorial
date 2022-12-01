@@ -212,13 +212,7 @@ fn tower_button_clicked(
     }
 }
 
-fn create_ui(
-    commands: &mut Commands,
-    asset_server: &AssetServer,
-    gameplay_ui: Query<Entity, With<GamePlayUIRoot>>,
-) {
-    //Won't panic: UI root must exist and there is only one
-    let root = gameplay_ui.single();
+fn create_ui(commands: &mut Commands, asset_server: &AssetServer) {
     //TODO move all tower specific data to a resource, probably serialized to a ron file
     let button_icons = [
         asset_server.load("tomato_tower.png"),
@@ -230,7 +224,7 @@ fn create_ui(
 
     let costs = [50, 80, 110];
 
-    let child = commands
+    commands
         .spawn(NodeBundle {
             style: Style {
                 size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
@@ -260,10 +254,7 @@ fn create_ui(
                     })
                     .insert(towers[i]);
             }
-        })
-        .id();
-
-    commands.entity(root).add_child(child);
+        });
 }
 
 fn create_ui_on_selection(
@@ -272,7 +263,6 @@ fn create_ui_on_selection(
     //Perf could probably be smarter with change detection
     selections: Query<&Selection>,
     root: Query<Entity, With<TowerUIRoot>>,
-    gameplay_ui: Query<Entity, With<GamePlayUIRoot>>,
 ) {
     let at_least_one_selected = selections.iter().any(|selection| selection.selected());
     match root.get_single() {
@@ -284,7 +274,7 @@ fn create_ui_on_selection(
         //No root exist
         Err(QuerySingleError::NoEntities(..)) => {
             if at_least_one_selected {
-                create_ui(&mut commands, &asset_server, gameplay_ui);
+                create_ui(&mut commands, &asset_server);
             }
         }
         _ => unreachable!("Too many ui tower roots!"),

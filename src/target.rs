@@ -1,4 +1,4 @@
-use bevy::{math::Vec3Swizzles, prelude::*, reflect::GetPath};
+use bevy::{math::Vec3Swizzles, prelude::*};
 
 use crate::{GameState, Player};
 
