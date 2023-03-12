@@ -32,14 +32,17 @@ pub struct TowerPlugin;
 impl Plugin for TowerPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<Tower>()
-            .register_inspectable::<TowerType>()
+            // TODO: Figure out what to do here:
+            // .register_inspectable::<TowerType>()
             .register_type::<TowerButtonState>()
-            .add_system_set(
-                SystemSet::on_update(GameState::Gameplay)
-                    .with_system(tower_shooting)
-                    .with_system(tower_button_clicked)
-                    .with_system(create_ui_on_selection)
-                    .with_system(grey_tower_buttons.after(create_ui_on_selection)),
+            .add_systems(
+                (
+                    tower_shooting,
+                    tower_button_clicked,
+                    create_ui_on_selection,
+                    grey_tower_buttons.after(create_ui_on_selection),
+                )
+                    .in_set(OnUpdate(GameState::Gameplay)),
             );
     }
 }

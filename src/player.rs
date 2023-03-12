@@ -24,15 +24,11 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<Player>()
-            .add_system_set(
-                SystemSet::on_enter(GameState::Gameplay)
-                    .with_system(spawn_player)
-                    .with_system(spawn_gameplay_ui),
+            .add_systems(
+                (spawn_player, spawn_gameplay_ui).in_schedule(OnEnter(GameState::Gameplay)),
             )
-            .add_system_set(
-                SystemSet::on_update(GameState::Gameplay)
-                    .with_system(give_money_on_kill)
-                    .with_system(update_player_ui),
+            .add_systems(
+                (give_money_on_kill, update_player_ui).in_set(OnUpdate(GameState::Gameplay)),
             );
     }
 }
