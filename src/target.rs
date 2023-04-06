@@ -38,11 +38,9 @@ impl Plugin for TargetPlugin {
                     Vec2::new(9.0, 9.0),
                 ],
             })
-            .add_system_set(
-                SystemSet::on_update(GameState::Gameplay)
-                    .with_system(move_targets)
-                    .with_system(hurt_player.after(move_targets))
-                    .with_system(target_death),
+            .add_systems(
+                (move_targets, hurt_player.after(move_targets), target_death)
+                    .in_set(OnUpdate(GameState::Gameplay)),
             );
     }
 }

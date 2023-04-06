@@ -1,5 +1,5 @@
-use bevy::{pbr::NotShadowCaster, prelude::*, utils::FloatOrd};
-use bevy_inspector_egui::{Inspectable, RegisterInspectable, WorldInspectorPlugin};
+use bevy::{pbr::NotShadowCaster, prelude::*, utils::FloatOrd, window::WindowResolution};
+use bevy_inspector_egui::Inspectable;
 use bevy_mod_picking::*;
 
 pub const HEIGHT: f32 = 720.0;
@@ -29,8 +29,9 @@ pub use player::*;
 pub use target::*;
 pub use tower::*;
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(States, Debug, Default, Clone, Eq, PartialEq, Hash)]
 pub enum GameState {
+    #[default]
     MainMenu,
     Gameplay,
 }
@@ -40,21 +41,21 @@ fn main() {
         // Window Setup
         .insert_resource(ClearColor(Color::rgb(0.3, 0.3, 0.3)))
         .add_plugins(DefaultPlugins.set(WindowPlugin {
-            window: WindowDescriptor {
-                width: WIDTH,
-                height: HEIGHT,
+            primary_window: Some(Window {
+                resolution: WindowResolution::new(WIDTH, HEIGHT),
                 title: "Bevy Tower Defense".to_string(),
                 resizable: false,
                 ..default()
-            },
+            }),
             ..default()
         }))
         // Inspector Setup
-        .add_plugin(WorldInspectorPlugin::new())
+        // TODO: Update to a new version of bevy_inspector_egui
+        // .add_plugin(WorldInspectorPlugin::new())
         // Mod Picking
         .add_plugins(DefaultPickingPlugins)
         // Our State
-        .add_state(GameState::MainMenu)
+        .add_state::<GameState>()
         // Our Systems
         .add_plugin(TowerPlugin)
         .add_plugin(TargetPlugin)
@@ -62,9 +63,9 @@ fn main() {
         .add_plugin(MainMenuPlugin)
         .add_plugin(PlayerPlugin)
         //TODO despawn scene on returning to main menu (on_exit)
-        .add_system_set(SystemSet::on_enter(GameState::Gameplay).with_system(spawn_basic_scene))
+        .add_system(spawn_basic_scene.in_schedule(OnEnter(GameState::Gameplay)))
         .add_startup_system(spawn_camera)
-        .add_startup_system_to_stage(StartupStage::PreStartup, asset_loading)
+        .add_startup_system(asset_loading.in_base_set(StartupSet::PreStartup))
         .add_system(camera_controls)
         .run();
 }
@@ -138,7 +139,7 @@ fn spawn_basic_scene(
 ) {
     commands
         .spawn(PbrBundle {
-            mesh: meshes.add(Mesh::from(shape::Plane { size: 50.0 })),
+            mesh: meshes.add(Mesh::from(shape::Plane::from_size(50.0))),
             material: materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
             ..default()
         })
